@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.codepath.apps.SimpleTwitterClient.models.Tweet;
 
@@ -18,10 +19,14 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
 
+        public TextView tweetBody;
+
 
         public ViewHolder(View itemView)
         {
             super(itemView);
+
+            tweetBody = (TextView) itemView.findViewById(R.id.tvTweetBody);
         }
     }
 
@@ -44,11 +49,15 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
-        //inflate a custom view for our tweets.
-        View tweetsView = inflater.inflate(R.layout.activity_timeline, parent, false);
+        View tweetsView = inflater.inflate(R.layout.tweet_layout, parent, false);
 
         ViewHolder viewHolder = new ViewHolder(tweetsView);
+
+        /*@Override
+        public void onItemClick(View caller, int position) {
+        //launch something to compose a tweet
+            launchComposeActivity();
+        }*/
 
         return viewHolder;
     }
@@ -58,6 +67,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         Tweet tweet = mTweets.get(position);
         //create custom view of tweet feedback.
 
+        TextView textView = holder.tweetBody;
+        textView.setText("test");
 
     }
 

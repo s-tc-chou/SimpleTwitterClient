@@ -24,8 +24,7 @@ public class TimelineActivity extends AppCompatActivity {
     private TweetsArrayAdapter aTweets;
     private ArrayList<Tweet> tweets;
 
-    @BindView(R.id.rvTweets)
-    RecyclerView rvTweets;
+    //@BindView(R.id.rvTweets) RecyclerView rvTweets;
 
 
     @Override
@@ -33,7 +32,10 @@ public class TimelineActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
         setTitle(R.string.title_activity_timeline);
-        ButterKnife.bind(this);
+      //  ButterKnife.bind(this);
+
+        RecyclerView rvTweets = (RecyclerView)findViewById(R.id.rvTweets);
+
 
         //create array list (data source)
         tweets = new ArrayList<>();
