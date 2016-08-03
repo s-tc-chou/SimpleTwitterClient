@@ -1,4 +1,4 @@
-package com.codepath.apps.restclienttemplate.models;
+package com.codepath.apps.SimpleTwitterClient.models;
 
 import java.util.List;
 
@@ -17,7 +17,7 @@ import com.activeandroid.query.Select;
  * 
  */
 @Table(name = "items")
-public class SampleModel extends Model {
+public class  SampleModel extends Model {
 	// Define table fields
 	@Column(name = "name")
 	private String name;
