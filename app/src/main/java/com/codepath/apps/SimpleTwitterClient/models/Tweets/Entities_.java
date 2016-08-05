@@ -1,8 +1,7 @@
-package com.codepath.apps.SimpleTwitterClient.models;
+package com.codepath.apps.SimpleTwitterClient.models.Tweets;
 
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Entities_ {
 

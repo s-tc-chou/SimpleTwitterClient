@@ -5,6 +5,7 @@ import org.scribe.builder.api.FlickrApi;
 import org.scribe.builder.api.TwitterApi;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.codepath.oauth.OAuthBaseClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -38,9 +39,10 @@ import com.loopj.android.http.RequestParams;
 public class TwitterClient extends OAuthBaseClient {
 	public static final Class<? extends Api> REST_API_CLASS = TwitterApi.class; // Change this
 	public static final String REST_URL = "https://api.twitter.com/1.1";
-	public static final String REST_CONSUMER_KEY = "K8WWeUFy5Q4a6cQzi6Mo9z8W8";
-	public static final String REST_CONSUMER_SECRET = "tTCVkldE8sMA8EaTUzHPgwYnEpEZjzHWlECxvRnYqpQNxV2jvL";
+	public static final String REST_CONSUMER_KEY = "NRSsJXZNWySaj9rSU6TYNHCm0";
+	public static final String REST_CONSUMER_SECRET = "5IJGqk8eI3YSTPmz9vTmpsgcGMiJefBVlffWATumrC17FXcQGU";
 	public static final String REST_CALLBACK_URL = "oauth://cpsimpletweets"; // Change this (here and in manifest)
+
 
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST_CONSUMER_KEY, REST_CONSUMER_SECRET, REST_CALLBACK_URL);
@@ -49,23 +51,50 @@ public class TwitterClient extends OAuthBaseClient {
 	//everything here is endpoint
 
 	//Get us the home timeline
-	public void getHomeTimeline(AsyncHttpResponseHandler handler)
+	public void getInitialHomeTimeline(AsyncHttpResponseHandler handler)
 	{
 		String apiURL = getApiUrl("statuses/home_timeline.json");
 		RequestParams params = new RequestParams();
-		params.put("count",25);
+		params.put("count",10);
 		params.put("since_id", 1);
 
 		//execute the request
 		getClient().get(apiURL,params,handler);
-
 	}
 
-	//compose tweet
-
-	public void composeTweet(AsyncHttpResponseHandler handler)
+	//paginating timeline
+	public void getPaginatedHomeTimeline(AsyncHttpResponseHandler handler, long maxId)
 	{
+		String apiURL = getApiUrl("statuses/home_timeline.json");
+		RequestParams params = new RequestParams();
+		params.put("count",10);
+		params.put("since_id", 1);
+		params.put("max_id", maxId);
 
+		//execute the request
+		getClient().get(apiURL,params,handler);
+	}
+
+	//Get us the current user profile.
+	public void getProfile(AsyncHttpResponseHandler handler)
+	{
+		String apiURL = getApiUrl("account/verify_credentials.json");
+
+		//execute the request
+		getClient().get(apiURL,handler);
+	}
+
+
+
+	//compose tweet
+	public void composeTweet(AsyncHttpResponseHandler handler, String text)
+	{
+		String apiURL = getApiUrl("statuses/update.json");
+		RequestParams params = new RequestParams();
+		params.put("status",text);
+
+		//execute the request
+		getClient().post(apiURL,params,handler);
 	}
 
 }

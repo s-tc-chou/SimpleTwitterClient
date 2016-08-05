@@ -1,4 +1,4 @@
-package com.codepath.apps.SimpleTwitterClient.models;
+package com.codepath.apps.SimpleTwitterClient.models.Tweets;
 
 import org.json.JSONException;
 import org.json.JSONObject;

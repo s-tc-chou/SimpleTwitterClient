@@ -1,4 +1,4 @@
-package com.codepath.apps.SimpleTwitterClient.models;
+package com.codepath.apps.SimpleTwitterClient.models.Tweets;
 
 import java.util.List;
 

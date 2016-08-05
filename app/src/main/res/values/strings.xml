@@ -5,4 +5,10 @@
     <string name="login_label">Connect to Twitter</string>
     <string name="title_activity_timeline">Home Timeline</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="btnTweet">Tweet!</string>
+    <string name="btnCancel">X</string>
+    <string name="etCompose">Tweet Something!</string>
+
 </resources>
