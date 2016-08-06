@@ -87,10 +87,6 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     @Override
     public void onBindViewHolder(TweetsArrayAdapter.ViewHolder holder, int position) {
         Tweet tweet = mTweets.get(position);
-        //create custom view of tweet feedback.
-
-
-
 
         //layout sets.
         TextView tweetBody = holder.tweetBody;

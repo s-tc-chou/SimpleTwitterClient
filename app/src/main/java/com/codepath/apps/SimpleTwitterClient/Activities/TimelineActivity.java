@@ -1,7 +1,9 @@
 package com.codepath.apps.SimpleTwitterClient.Activities;
 
+import android.content.DialogInterface;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,14 +12,19 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.codepath.apps.SimpleTwitterClient.Adapters.EndlessRecyclerViewScrollListener;
+import com.codepath.apps.SimpleTwitterClient.DBHelper;
+import com.codepath.apps.SimpleTwitterClient.Network;
 import com.codepath.apps.SimpleTwitterClient.R;
 import com.codepath.apps.SimpleTwitterClient.Adapters.TweetsArrayAdapter;
 import com.codepath.apps.SimpleTwitterClient.TwitterApplication;
 import com.codepath.apps.SimpleTwitterClient.TwitterClient;
 import com.codepath.apps.SimpleTwitterClient.models.Tweets.Tweet;
 import com.codepath.apps.SimpleTwitterClient.models.UserVerification.TwitterUserProfile;
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -29,17 +36,24 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
+import okhttp3.OkHttpClient;
 
 public class TimelineActivity extends AppCompatActivity implements ComposeFragment.onComposeFinishedListener{
 
     static final String TAG = "STEVEDEBUG";
+
     private TwitterClient client;
     private TweetsArrayAdapter aTweets;
     private ArrayList<Tweet> tweets;
 
+    private boolean areWeOnline = false;
     private boolean isInitialQuery = true;
     private boolean swipeToRefresh = false;
     private long maxId = 1;
+
+    //helper classes
+    Network network;
+    DBHelper tweetDB;
 
     //butterknife binds
     @BindView(R.id.rvTweets) RecyclerView rvTweets;
@@ -52,19 +66,32 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         setTitle(R.string.title_activity_timeline);
         ButterKnife.bind(this);
 
+
+        //create DB
+        tweetDB = new DBHelper(this);
+
+        //network helper
+        network = new Network();
+
         //create array list (data source)
         tweets = new ArrayList<>();
 
         //construct adapter from datasource
         aTweets = new TweetsArrayAdapter(this,tweets);
+        //check and set online state.
+        areWeOnline = network.isNetworkAvailable(getApplicationContext()) && network.isOnline();
+        //retrieve singleton client from twitter application
+        client = TwitterApplication.getRestClient();
         //connect adapter to recycler view
         initrvTweets();
         initSwipeContainer();
+        //populate tweets
+        areWeOnline = false;
+        populateTimeLine(areWeOnline);
 
 
-        //retrieve singleton client from twitter application
-        client = TwitterApplication.getRestClient();
-        populateTimeLine();
+        //stetho debugger
+        Stetho.initializeWithDefaults(this);
     }
 
 
@@ -75,7 +102,13 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         //handle action item
         switch (item.getItemId()) {
             case R.id.miCompose:
-                composeMessage();
+                if (areWeOnline) {
+                    composeMessage();
+                }
+                else
+                {
+                    showOfflineAlert();
+                }
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -97,7 +130,8 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         isInitialQuery = true;
         //Log.d(TAG, "onComposeFinish: clearing data");
         aTweets.clearData();
-        populateTimeLine();
+        //might want to check to see if we're online...
+        populateTimeLine(areWeOnline);
     }
 
 
@@ -130,64 +164,71 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
                 android.R.color.holo_red_light);
     }
 
+    //send api request to get timeline json and fill recyclerview by creating the tweet objects.
+    private void populateTimeLine(boolean isOnline) {
+        //If we're offline, populate from SQL db.
+        if (isOnline) {
+            //if it's the first query, pull everything.
+            if (isInitialQuery) {
+                client.getInitialHomeTimeline(new JsonHttpResponseHandler() {
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
+                        ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
 
+                        //dedupe and set id if there's something in tweets.
+                        if (JSONTweets.size() > 0 && !duplicateCheck(JSONTweets, tweets)) {
+                            setLastID(JSONTweets.get(JSONTweets.size() - 1));
+                            tweets.addAll(JSONTweets);
+                            aTweets.notifyDataSetChanged();
+                            //add the records to the DB
+                            tweetDB.refresh();
+                            tweetDB.addTweetArray(JSONTweets);
 
+                        } else {
+                            Log.e(TAG, "failed dupe check@onSuccess. Not adding. ");
+                        }
+                    }
 
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        Log.d(TAG, errorResponse.toString());
+                    }
+                });
+                isInitialQuery = false;
+            } else {
+                client.getPaginatedHomeTimeline(new JsonHttpResponseHandler() {
 
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
+                        ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
 
-    //send api request to get timeline json and fill recyclerview by creating the tweet objects
-    private void populateTimeLine() {
-        if (isInitialQuery)
-        {
-            client.getInitialHomeTimeline(new JsonHttpResponseHandler() {
-               @Override
-               public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
-                   ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
+                        //dedupe and set id if there's something in tweets.
+                        if (JSONTweets.size() > 0 && !duplicateCheck(JSONTweets, tweets)) {
+                            setLastID(JSONTweets.get(JSONTweets.size() - 1));
+                            tweets.addAll(JSONTweets);
+                            aTweets.notifyDataSetChanged();
+                            //add the records to the DB
+                            tweetDB.addTweetArray(JSONTweets);
+                        } else {
+                            Log.e(TAG, "failed dupe Paginate check@onSuccess. Not adding. ");
+                        }
+                    }
 
-                   //dedupe and set id if there's something in tweets.
-                   if(JSONTweets.size() > 0 && !duplicateCheck(JSONTweets, tweets)) {
-                       setLastID(JSONTweets.get(JSONTweets.size()-1));
-                       tweets.addAll(JSONTweets);
-                       aTweets.notifyDataSetChanged();
-
-                   }
-                   else{
-                       Log.d(TAG, "failed dupe check. Not adding. ");
-                   }
-               }
-
-               @Override
-               public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                   Log.d(TAG, errorResponse.toString());
-               }
-            });
-            isInitialQuery = false;
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                        //super.onFailure(statusCode, headers, throwable, errorResponse);
+                        Log.d(TAG, errorResponse.toString());
+                    }
+                }, maxId);
+            }
         }
         else
         {
-            client.getPaginatedHomeTimeline(new JsonHttpResponseHandler() {
+            //Toast.makeText(this, "I'm offline!", Toast.LENGTH_SHORT).show();
+            //read from sql db here.
+            tweets.addAll(tweetDB.getAllListItems());
+            aTweets.notifyDataSetChanged();
 
-                @Override
-                public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
-                    ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
-
-                    //dedupe and set id if there's something in tweets.
-                    if(JSONTweets.size() > 0 && !duplicateCheck(JSONTweets, tweets)) {
-                        setLastID(JSONTweets.get(JSONTweets.size()-1));
-                        tweets.addAll(JSONTweets);
-                        aTweets.notifyDataSetChanged();
-                    }
-                    else{
-                        Log.d(TAG, "failed dupe check. Not adding. ");
-                    }
-                }
-
-                @Override
-                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    //super.onFailure(statusCode, headers, throwable, errorResponse);
-                    Log.d(TAG, errorResponse.toString());
-                }
-            },  maxId);
         }
     }
 
@@ -229,18 +270,40 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         composeFragment.show(fm, "fragment_compose");
     }
 
+    //display message box if offline.
+    public void showOfflineAlert()
+    {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(getApplicationContext());
+        builder1.setMessage("Need internet connection to compose a tweet. ");
+        builder1.setCancelable(true);
+
+        builder1.setNeutralButton(
+                "Ok",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
 
     // Listener helper functions ----------------
     //Append more data into the adapter
     public void customLoadMoreDataFromApi(int page) {
-        populateTimeLine();
+        //paginate only if online.
+        if (areWeOnline) {
+            populateTimeLine(areWeOnline);
+        }
     }
 
+    //clear the adapter and refresh all the data based on pull to refresh.
     public void fetchTimelineAsync(int page) {
         swipeToRefresh = true;
         isInitialQuery = true;
         aTweets.clearData();
-        populateTimeLine();
+        populateTimeLine(areWeOnline);
         swipeToRefresh = false;
         swipeContainer.setRefreshing(false);
     }

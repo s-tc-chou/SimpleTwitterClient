@@ -30,6 +30,7 @@ public class Tweet {
     private Object inReplyToScreenName;
     private Object inReplyToStatusId;
     private Boolean possiblySensitive;
+
 //    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     //deserialize JSON and build the tweet object
