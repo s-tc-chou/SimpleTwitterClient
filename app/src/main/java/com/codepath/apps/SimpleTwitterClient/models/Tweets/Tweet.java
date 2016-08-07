@@ -4,7 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Tweet {
@@ -44,6 +46,8 @@ public class Tweet {
             tweet.id = jsonObject.getLong("id");
             tweet.createdAt = jsonObject.getString("created_at");
             tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
+            tweet.entities = Entities.fromJSON(jsonObject.getJSONObject("entities"));
+            //tweet.media = Media.fromJSONArray(jsonObject.getJSONArray("media"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -74,7 +78,6 @@ public class Tweet {
 
         return tweets;
     }
-
 
     /**
      *

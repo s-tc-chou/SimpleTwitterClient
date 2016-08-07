@@ -1,13 +1,16 @@
 package com.codepath.apps.SimpleTwitterClient.Adapters;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.codepath.apps.SimpleTwitterClient.R;
@@ -32,6 +35,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         public TextView name;
         public TextView relativeTime;
         public ImageView profilePicture;
+        public ImageView mediaPicture;
 
 
         public ViewHolder(View itemView)
@@ -43,6 +47,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
             name= (TextView) itemView.findViewById(R.id.tvName);
             relativeTime= (TextView) itemView.findViewById(R.id.tvRelativeTime);
             profilePicture = (ImageView) itemView.findViewById(R.id.ivProfileImage);
+            mediaPicture = (ImageView) itemView.findViewById(R.id.ivMediaUrl);
         }
 
         @Override
@@ -94,6 +99,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         TextView name = holder.name;
         TextView relativeTime = holder.relativeTime;
         ImageView profilePicture = holder.profilePicture;
+        ImageView mediaPicture = holder.mediaPicture;
 
         tweetBody.setText(tweet.getText());
         //Log.d("onBindViewHolder: ", "position " + position + ": "+ tweet.getUser().toString());
@@ -106,6 +112,16 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         Glide.with(getContext())
                 .load(tweet.getUser().getProfileImageUrl())
                 .into(profilePicture);
+
+        if (tweet.getEntities().getMedia().size() != 0) {
+            //grab the first one:
+            Log.d("onBindViewHolder: ", tweet.getEntities().getMedia().get(0).getMediaUrl());
+            Glide.with(getContext())
+                    .load(tweet.getEntities().getMedia().get(0).getMediaUrl())
+                    .placeholder(R.drawable.placeholder)
+                    .into(mediaPicture);
+        }
+
 
     }
 

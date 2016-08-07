@@ -1,11 +1,14 @@
 package com.codepath.apps.SimpleTwitterClient.Activities;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +34,8 @@ import cz.msebera.android.httpclient.Header;
 public class ComposeFragment extends DialogFragment {
 
     private final String TAG = "compose_fragmentSTEVE:";
+    private TextWatcher countdown;
+    private int textLength = 0;
 
     @BindView(R.id.tvName) TextView tvName;
     @BindView(R.id.tvCounter) TextView tvCounter;
@@ -73,10 +78,45 @@ public class ComposeFragment extends DialogFragment {
         //initialize listeners
         initBtnTweetOnClickListener();
         initBtnCancelOnClickListener();
+        initTextWatcher();
         populateProfile();
     }
 
 
+    //initialize textwatcher for the count down character.
+    public void initTextWatcher()
+    {
+        final int maxTextLength = 140;
+        tvCounter.setText(maxTextLength + "/140");
+
+        countdown = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (maxTextLength - charSequence.length() < 0) {
+                    tvCounter.setTextColor(Color.RED);
+                }
+                else{
+                    tvCounter.setTextColor(Color.parseColor("#808080"));
+                }
+
+                //Log.d(TAG, "onTextChanged: " + (maxTextLength - charSequence.length()));
+                tvCounter.setText((maxTextLength - charSequence.length()) + "/140");
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        };
+
+        etCompose.addTextChangedListener(countdown);
+    }
 
     public void initBtnTweetOnClickListener() {
         //initialize object.
@@ -100,22 +140,29 @@ public class ComposeFragment extends DialogFragment {
     //call the rest API to post the tweet.  Dismiss the window if it succeeds.
     private void postTweet() {
         String userTweet = etCompose.getText().toString();
+        textLength = userTweet.length();
 
-        client.composeTweet(new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                Log.d(TAG, "onSuccess success");
-                onComposeFinishedListener listener = (onComposeFinishedListener) getActivity();
-                listener.onComposeFinish();
-                dismiss();
-            }
+        if (textLength > 140)
+        {
+            Toast.makeText(getContext(),"Text length must be under 140 characters!", Toast.LENGTH_LONG).show();
+        }
+        else{
+            client.composeTweet(new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    Log.d(TAG, "onSuccess success");
+                    onComposeFinishedListener listener = (onComposeFinishedListener) getActivity();
+                    listener.onComposeFinish();
+                    dismiss();
+                }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Toast.makeText(getContext(), errorResponse.toString(), Toast.LENGTH_LONG );
-                //super.onFailure(statusCode, headers, throwable, errorResponse);
-            }
-        },userTweet);
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Toast.makeText(getContext(), errorResponse.toString(), Toast.LENGTH_LONG).show();
+                    //super.onFailure(statusCode, headers, throwable, errorResponse);
+                }
+            }, userTweet);
+        }
     }
 
 

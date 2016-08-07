@@ -1,5 +1,11 @@
 package com.codepath.apps.SimpleTwitterClient.models.Tweets;
 
+import android.widget.ArrayAdapter;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +17,21 @@ public class Entities {
     private List<Object> hashtags = new ArrayList<Object>();
     private List<Object> userMentions = new ArrayList<Object>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private ArrayList<Media> media = new ArrayList<Media>();
+
+
+    public static Entities fromJSON(JSONObject jsonObject)
+    {
+        Entities entity = new Entities();
+
+        try {
+            entity.media = Media.fromJSONArray(jsonObject.getJSONArray("media"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return entity;
+    }
 
     /**
      *
@@ -73,5 +94,24 @@ public class Entities {
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
+
+    /**
+     *
+     * @return
+     *     The media
+     */
+    public ArrayList<Media> getMedia() {
+        return media;
+    }
+
+    /**
+     *
+     * @param media
+     *     The media
+     */
+    public void setMedia(ArrayList<Media> media) {
+        this.media = media;
+    }
+
 
 }

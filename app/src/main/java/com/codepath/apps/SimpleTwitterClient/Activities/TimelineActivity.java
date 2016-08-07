@@ -66,27 +66,24 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         setTitle(R.string.title_activity_timeline);
         ButterKnife.bind(this);
 
-
         //create DB
         tweetDB = new DBHelper(this);
-
         //network helper
         network = new Network();
-
         //create array list (data source)
         tweets = new ArrayList<>();
-
         //construct adapter from datasource
         aTweets = new TweetsArrayAdapter(this,tweets);
         //check and set online state.
         areWeOnline = network.isNetworkAvailable(getApplicationContext()) && network.isOnline();
         //retrieve singleton client from twitter application
         client = TwitterApplication.getRestClient();
+
+
         //connect adapter to recycler view
         initrvTweets();
         initSwipeContainer();
         //populate tweets
-        areWeOnline = false;
         populateTimeLine(areWeOnline);
 
 
