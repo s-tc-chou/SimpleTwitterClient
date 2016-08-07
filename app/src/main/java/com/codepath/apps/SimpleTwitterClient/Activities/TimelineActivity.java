@@ -12,19 +12,22 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.codepath.apps.SimpleTwitterClient.Adapters.EndlessRecyclerViewScrollListener;
-import com.codepath.apps.SimpleTwitterClient.DBHelper;
-import com.codepath.apps.SimpleTwitterClient.Network;
+import com.codepath.apps.SimpleTwitterClient.Helpers.DBHelper;
+import com.codepath.apps.SimpleTwitterClient.Helpers.Network;
+import com.codepath.apps.SimpleTwitterClient.Helpers.ItemClickSupport;
 import com.codepath.apps.SimpleTwitterClient.R;
 import com.codepath.apps.SimpleTwitterClient.Adapters.TweetsArrayAdapter;
 import com.codepath.apps.SimpleTwitterClient.TwitterApplication;
 import com.codepath.apps.SimpleTwitterClient.TwitterClient;
 import com.codepath.apps.SimpleTwitterClient.models.Tweets.Tweet;
-import com.codepath.apps.SimpleTwitterClient.models.UserVerification.TwitterUserProfile;
 import com.facebook.stetho.Stetho;
-import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -36,9 +39,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
-import okhttp3.OkHttpClient;
 
-public class TimelineActivity extends AppCompatActivity implements ComposeFragment.onComposeFinishedListener{
+
+public class TimelineActivity extends AppCompatActivity implements ComposeFragment.onComposeFinishedListener, DetailFragment.onDetailFinishedListener{
 
     static final String TAG = "STEVEDEBUG";
 
@@ -131,6 +134,18 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         populateTimeLine(areWeOnline);
     }
 
+    @Override
+    public void onDetailFinished(boolean hasTweeted)
+    {
+        if (hasTweeted) {
+            isInitialQuery = true;
+            //Log.d(TAG, "onComposeFinish: clearing data");
+            aTweets.clearData();
+            //might want to check to see if we're online...
+            populateTimeLine(areWeOnline);
+        }
+    }
+
 
     //-------------initialization functions --------------------
 
@@ -142,6 +157,15 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
                 customLoadMoreDataFromApi(page);
+            }
+        });
+
+        ItemClickSupport.addTo(rvTweets).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                //debug only
+                //Toast.makeText(getApplicationContext(),"clicked " + position, Toast.LENGTH_SHORT).show();
+                showItemDetail(position);
             }
         });
     }
@@ -221,7 +245,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         }
         else
         {
-            //Toast.makeText(this, "I'm offline!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Cannot retrieve new tweets, no internet connection detected", Toast.LENGTH_LONG).show();
             //read from sql db here.
             tweets.addAll(tweetDB.getAllListItems());
             aTweets.notifyDataSetChanged();
@@ -260,15 +284,40 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         maxId = tweet.getId()-1;
     }
 
+
+    private void showItemDetail(int position){
+
+        FragmentManager fm = getSupportFragmentManager();
+        DetailFragment detailFragment = new DetailFragment();
+
+        //setup bundle
+        Tweet curTweet = tweets.get(position);
+        Bundle mybundle = new Bundle();
+        mybundle.putString("userName", curTweet.getUser().getScreenName());
+        mybundle.putString("tweetBody", curTweet.getText());
+        mybundle.putString("name", curTweet.getUser().getName());
+        //mybundle.putString("relativeTime", curTweet.getUser().getName());
+        mybundle.putString("profilePicture", curTweet.getUser().getProfileImageUrl());
+
+        if (curTweet.getEntities().getMedia().size() != 0) {
+            //grab the first one:
+            mybundle.putString("mediaPicture", curTweet.getEntities().getMedia().get(0).getMediaUrl());
+        }
+
+        detailFragment.setArguments(mybundle);
+
+        detailFragment.show(fm, "fragment_detail");
+    }
+
     //launch the setting dialog
-    public void composeMessage(){
+    private void composeMessage(){
         FragmentManager fm = getSupportFragmentManager();
         ComposeFragment composeFragment = new ComposeFragment();
         composeFragment.show(fm, "fragment_compose");
     }
 
     //display message box if offline.
-    public void showOfflineAlert()
+    private void showOfflineAlert()
     {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(getApplicationContext());
         builder1.setMessage("Need internet connection to compose a tweet. ");
@@ -288,7 +337,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
 
     // Listener helper functions ----------------
     //Append more data into the adapter
-    public void customLoadMoreDataFromApi(int page) {
+    private void customLoadMoreDataFromApi(int page) {
         //paginate only if online.
         if (areWeOnline) {
             populateTimeLine(areWeOnline);
@@ -296,7 +345,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     }
 
     //clear the adapter and refresh all the data based on pull to refresh.
-    public void fetchTimelineAsync(int page) {
+    private void fetchTimelineAsync(int page) {
         swipeToRefresh = true;
         isInitialQuery = true;
         aTweets.clearData();

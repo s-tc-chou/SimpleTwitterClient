@@ -121,6 +121,9 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                     .placeholder(R.drawable.placeholder)
                     .into(mediaPicture);
         }
+        else {
+            mediaPicture.setImageResource(0);
+        }
 
 
     }

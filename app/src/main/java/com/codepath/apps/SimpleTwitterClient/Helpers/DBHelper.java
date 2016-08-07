@@ -1,4 +1,4 @@
-package com.codepath.apps.SimpleTwitterClient;
+package com.codepath.apps.SimpleTwitterClient.Helpers;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,15 +8,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.codepath.apps.SimpleTwitterClient.models.Tweets.Tweet;
 import com.codepath.apps.SimpleTwitterClient.models.Tweets.User;
 
-import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Locale;
+
 
 /**
  * Created by Steve on 8/6/2016.
