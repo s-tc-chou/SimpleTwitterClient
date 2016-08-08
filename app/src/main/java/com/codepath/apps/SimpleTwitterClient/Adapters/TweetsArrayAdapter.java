@@ -113,9 +113,10 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                 .load(tweet.getUser().getProfileImageUrl())
                 .into(profilePicture);
 
-        if (tweet.getEntities().getMedia().size() != 0) {
+        if (tweet.getEntities() != null && tweet.getEntities().getMedia().size() != 0)
+        {
             //grab the first one:
-            Log.d("onBindViewHolder: ", tweet.getEntities().getMedia().get(0).getMediaUrl());
+            //Log.d("onBindViewHolder: ", tweet.getEntities().getMedia().get(0).getMediaUrl());
             Glide.with(getContext())
                     .load(tweet.getEntities().getMedia().get(0).getMediaUrl())
                     .placeholder(R.drawable.placeholder)

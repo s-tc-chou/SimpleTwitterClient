@@ -105,8 +105,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
                 if (areWeOnline) {
                     composeMessage();
                 }
-                else
-                {
+                else {
                     showOfflineAlert();
                 }
                 return true;
@@ -319,7 +318,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     //display message box if offline.
     private void showOfflineAlert()
     {
-        AlertDialog.Builder builder1 = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage("Need internet connection to compose a tweet. ");
         builder1.setCancelable(true);
 
