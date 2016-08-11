@@ -26,6 +26,7 @@ import butterknife.ButterKnife;
 import cz.msebera.android.httpclient.Header;
 
 
+//Fragment detail for timeline.
 public class DetailFragment extends DialogFragment {
 
     @BindView(R.id.tvUserName) TextView tvUserName;
@@ -35,7 +36,6 @@ public class DetailFragment extends DialogFragment {
     @BindView(R.id.ivMediaUrl) ImageView ivMediaUrl;
     @BindView(R.id.btnRespond) Button btnRespond;
     @BindView(R.id.etResponse) EditText etResponse;
-    //@BindView(R.id.tvUserName) TextView tvUserName;
 
     private TwitterClient client;
 

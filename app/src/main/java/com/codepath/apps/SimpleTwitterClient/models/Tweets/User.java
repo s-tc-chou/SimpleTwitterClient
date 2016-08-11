@@ -61,6 +61,9 @@ public class User {
             user.id = json.getLong("id");
             user.screenName = json.getString("screen_name");
             user.profileImageUrl = json.getString("profile_image_url");
+            user.description = json.getString("description");
+            user.followersCount = json.getInt("followers_count");
+            user.friendsCount = json.getInt("friends_count");
         } catch (JSONException e) {
             e.printStackTrace();
         }

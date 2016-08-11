@@ -14,7 +14,7 @@ import java.io.IOException;
 public class Network {
 
     //Network functions ------------------------
-    public Boolean isNetworkAvailable(Context context) {
+    private Boolean isNetworkAvailable(Context context) {
 
         ConnectivityManager connectivityManager
                 = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -22,7 +22,7 @@ public class Network {
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 
-    public boolean isOnline() {
+    private boolean isOnline() {
         Runtime runtime = Runtime.getRuntime();
         try {
             Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
@@ -32,4 +32,11 @@ public class Network {
         catch (InterruptedException e) { e.printStackTrace(); }
         return false;
     }
+
+    public boolean getOnlineStatus(Context context){
+
+        return isNetworkAvailable(context) && isOnline();
+
+    }
+
 }

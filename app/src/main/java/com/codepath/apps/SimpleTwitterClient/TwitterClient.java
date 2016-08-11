@@ -75,7 +75,30 @@ public class TwitterClient extends OAuthBaseClient {
 		getClient().get(apiURL,params,handler);
 	}
 
+	//paginating timeline
+	public void getMentionsTimeline(AsyncHttpResponseHandler handler)
+	{
+		String apiURL = getApiUrl("statuses/mentions_timeline.json");
+		RequestParams params = new RequestParams();
+		params.put("count",10);
+
+		//execute the request
+		getClient().get(apiURL,params,handler);
+	}
+	//paginating timeline
+	public void getPaginatedMentionsTimeline(AsyncHttpResponseHandler handler, long maxId)
+	{
+		String apiURL = getApiUrl("statuses/mentions_timeline.json");
+		RequestParams params = new RequestParams();
+		params.put("count",10);
+		params.put("max_id", maxId);
+
+		//execute the request
+		getClient().get(apiURL,params,handler);
+	}
+
 	//Get us the current user profile.
+	//getUserInfo
 	public void getProfile(AsyncHttpResponseHandler handler)
 	{
 		String apiURL = getApiUrl("account/verify_credentials.json");
@@ -84,6 +107,25 @@ public class TwitterClient extends OAuthBaseClient {
 		getClient().get(apiURL,handler);
 	}
 
+	public void getUserTimeine(String screenName, AsyncHttpResponseHandler handler)
+	{
+		String apiURL = getApiUrl("statuses/user_timeline.json");
+		RequestParams params = new RequestParams();
+		params.put("count",10);
+		params.put("screen_name", screenName);
+
+		getClient().get(apiURL,params,handler);
+	}
+	public void getPaginatedUserTimeine(String screenName, AsyncHttpResponseHandler handler, long maxId)
+	{
+		String apiURL = getApiUrl("statuses/user_timeline.json");
+		RequestParams params = new RequestParams();
+		params.put("count",10);
+		params.put("screen_name", screenName);
+		params.put("max_id", maxId);
+
+		getClient().get(apiURL,params,handler);
+	}
 
 
 	//compose tweet
