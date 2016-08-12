@@ -1,5 +1,6 @@
 package com.codepath.apps.SimpleTwitterClient.models.Tweets;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,6 +55,34 @@ public class User {
 
     public static User fromJSON(JSONObject json)
     {
+        User user = new User();
+
+        try {
+            user.name = json.getString("name");
+            user.id = json.getLong("id");
+            user.screenName = json.getString("screen_name");
+            user.profileImageUrl = json.getString("profile_image_url");
+            user.description = json.getString("description");
+            user.followersCount = json.getInt("followers_count");
+            user.friendsCount = json.getInt("friends_count");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return user;
+    }
+
+    //user set using info lookup.  It returns an array but for our purposes we're always looking up a specific user, so it's an array with size of 1.
+    public static User fromInfoLookup(JSONArray jsonArray)
+    {
+        JSONObject json = new JSONObject();
+        try {
+            json = jsonArray.getJSONObject(0);
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         User user = new User();
 
         try {

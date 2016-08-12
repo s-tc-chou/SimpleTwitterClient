@@ -1,6 +1,7 @@
 package com.codepath.apps.SimpleTwitterClient.Adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.provider.ContactsContract;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -13,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.codepath.apps.SimpleTwitterClient.Activities.ProfileActivity;
 import com.codepath.apps.SimpleTwitterClient.R;
 import com.codepath.apps.SimpleTwitterClient.models.Tweets.Tweet;
 
@@ -28,7 +30,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     private Context mContext;
     private List<Tweet> mTweets;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public static class ViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
 
         public TextView tweetBody;
         public TextView userName;
@@ -37,8 +39,9 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         public ImageView profilePicture;
         public ImageView mediaPicture;
 
+        public OnViewHolderClickListener viewHolderClickListener;
 
-        public ViewHolder(View itemView)
+        public ViewHolder(View itemView, OnViewHolderClickListener listener)
         {
             super(itemView);
 
@@ -48,13 +51,26 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
             relativeTime= (TextView) itemView.findViewById(R.id.tvRelativeTime);
             profilePicture = (ImageView) itemView.findViewById(R.id.ivProfileImage);
             mediaPicture = (ImageView) itemView.findViewById(R.id.ivMediaUrl);
+
+
+            //set click listener
+            if (listener != null) {
+                viewHolderClickListener = listener;
+                profilePicture.setOnClickListener(this);
+            }
         }
 
         @Override
         public void onClick(View view) {
-
-            //do something with onclick.
+            int itemPos = getAdapterPosition();
+            viewHolderClickListener.onItemClick(view, itemPos);
         }
+
+        public interface OnViewHolderClickListener {
+            void onItemClick(View caller, int position);
+        }
+
+
     }
 
     public TweetsArrayAdapter(Context context, List<Tweet> tweets)
@@ -70,21 +86,29 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     }
 
     //overwrite methods
-
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
         View tweetsView = inflater.inflate(R.layout.tweet_layout, parent, false);
 
-        ViewHolder viewHolder = new ViewHolder(tweetsView);
+        //ViewHolder viewHolder = new ViewHolder(tweetsView);
 
-        /*@Override
-        public void onItemClick(View caller, int position) {
-        //launch something to compose a tweet
-            launchComposeActivity();
-        }*/
+        ViewHolder viewHolder = new ViewHolder(tweetsView, new ViewHolder.OnViewHolderClickListener(){
+
+            @Override
+            public void onItemClick(View caller, int position) {
+
+                Tweet tweet = mTweets.get(position);
+
+                //launch intent
+                // TODO: DO MY CLICK HERE!
+                Intent i = new Intent(getContext(), ProfileActivity.class);
+                i.putExtra("screen_name", tweet.getUser().getScreenName());
+                Log.d("on item click",  "username: " + tweet.getUser().getScreenName());
+                mContext.startActivity(i);
+            }
+        });
 
         return viewHolder;
     }
@@ -125,14 +149,13 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         else {
             mediaPicture.setImageResource(0);
         }
-
-
     }
 
     @Override
     public int getItemCount() {
         return mTweets.size();
     }
+
 
     //parse date
     public String getRelativeTimeAgo(String rawJsonDate) {
