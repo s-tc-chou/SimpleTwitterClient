@@ -1,4 +1,4 @@
-package com.codepath.apps.SimpleTwitterClient.Activities;
+package com.codepath.apps.SimpleTwitterClient.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;

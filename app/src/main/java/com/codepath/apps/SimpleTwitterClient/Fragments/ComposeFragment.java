@@ -1,4 +1,4 @@
-package com.codepath.apps.SimpleTwitterClient.Activities;
+package com.codepath.apps.SimpleTwitterClient.Fragments;
 
 import android.content.Context;
 import android.graphics.Color;

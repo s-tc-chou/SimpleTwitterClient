@@ -1,6 +1,5 @@
 package com.codepath.apps.SimpleTwitterClient.Activities;
 
-import android.media.Image;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.codepath.apps.SimpleTwitterClient.Fragments.UserTimelineFragment;
 import com.codepath.apps.SimpleTwitterClient.R;
 import com.codepath.apps.SimpleTwitterClient.TwitterApplication;
 import com.codepath.apps.SimpleTwitterClient.TwitterClient;
@@ -43,8 +43,7 @@ public class ProfileActivity extends AppCompatActivity {
         String screenName = getIntent().getStringExtra("screen_name");
 
         //if there's a screenname, get the twitter user information instead of profile information.
-        if (screenName != null)
-        {
+        if (screenName != null) {
             client.getUserInfo(screenName, new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
@@ -56,19 +55,12 @@ public class ProfileActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    Log.d("onFailure: ", errorResponse.toString() + " ");
+                    Log.e("Failed User Info", Log.getStackTraceString(throwable));
                 }
             });
-
-            if (user == null)
-            {
-                Log.d("onCreate: ", "null user");
-            }
-            //Log.d("onCreate: ", user.toString());
-
         }
+        //null screename, so use user_verification.
         else {
-            //always return same user object.  How to make a call with user name.
             client.getProfile(new JsonHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
@@ -76,6 +68,11 @@ public class ProfileActivity extends AppCompatActivity {
                     //my current user account info.
                     getSupportActionBar().setTitle("@" + user.getScreenName());
                     populateProfileHeader(user);
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Log.e("Failed getProfile", Log.getStackTraceString(throwable));
                 }
             });
         }

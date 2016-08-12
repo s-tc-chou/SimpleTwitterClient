@@ -25,12 +25,15 @@ import java.util.Locale;
 
 
 //Take tweet object and turn into views displayed in the recyclerview.
-public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder>{
+public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
     private Context mContext;
     private List<Tweet> mTweets;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements  View.OnClickListener{
+
+
+    //viewholder class extended with a click listener.
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         public TextView tweetBody;
         public TextView userName;
@@ -39,49 +42,47 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         public ImageView profilePicture;
         public ImageView mediaPicture;
 
+
         public OnViewHolderClickListener viewHolderClickListener;
 
-        public ViewHolder(View itemView, OnViewHolderClickListener listener)
-        {
+        public ViewHolder(View itemView, OnViewHolderClickListener listener) {
             super(itemView);
 
             tweetBody = (TextView) itemView.findViewById(R.id.tvTweetBody);
-            userName= (TextView) itemView.findViewById(R.id.tvUserName);
-            name= (TextView) itemView.findViewById(R.id.tvName);
-            relativeTime= (TextView) itemView.findViewById(R.id.tvRelativeTime);
+            userName = (TextView) itemView.findViewById(R.id.tvUserName);
+            name = (TextView) itemView.findViewById(R.id.tvName);
+            relativeTime = (TextView) itemView.findViewById(R.id.tvRelativeTime);
             profilePicture = (ImageView) itemView.findViewById(R.id.ivProfileImage);
             mediaPicture = (ImageView) itemView.findViewById(R.id.ivMediaUrl);
 
 
-            //set click listener
+            //set click listener for profile clicks.
             if (listener != null) {
                 viewHolderClickListener = listener;
                 profilePicture.setOnClickListener(this);
             }
         }
 
+        //sets the listener up with the item click method so we can have data.
         @Override
         public void onClick(View view) {
             int itemPos = getAdapterPosition();
             viewHolderClickListener.onItemClick(view, itemPos);
         }
 
+        //interface for utilizing item click.
         public interface OnViewHolderClickListener {
             void onItemClick(View caller, int position);
         }
-
-
     }
 
-    public TweetsArrayAdapter(Context context, List<Tweet> tweets)
-    {
+    public TweetsArrayAdapter(Context context, List<Tweet> tweets) {
         mContext = context;
         mTweets = tweets;
 
     }
 
-    private Context getContext()
-    {
+    private Context getContext() {
         return mContext;
     }
 
@@ -92,20 +93,16 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         LayoutInflater inflater = LayoutInflater.from(context);
         View tweetsView = inflater.inflate(R.layout.tweet_layout, parent, false);
 
-        //ViewHolder viewHolder = new ViewHolder(tweetsView);
-
-        ViewHolder viewHolder = new ViewHolder(tweetsView, new ViewHolder.OnViewHolderClickListener(){
+        //viewholder with listener
+        ViewHolder viewHolder = new ViewHolder(tweetsView, new ViewHolder.OnViewHolderClickListener() {
 
             @Override
             public void onItemClick(View caller, int position) {
-
                 Tweet tweet = mTweets.get(position);
 
-                //launch intent
-                // TODO: DO MY CLICK HERE!
+                //launch profile intent with screename.
                 Intent i = new Intent(getContext(), ProfileActivity.class);
                 i.putExtra("screen_name", tweet.getUser().getScreenName());
-                Log.d("on item click",  "username: " + tweet.getUser().getScreenName());
                 mContext.startActivity(i);
             }
         });
@@ -126,9 +123,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         ImageView mediaPicture = holder.mediaPicture;
 
         tweetBody.setText(tweet.getText());
-        //Log.d("onBindViewHolder: ", "position " + position + ": "+ tweet.getUser().toString());
         name.setText(tweet.getUser().getName());
-        userName.setText("@"+tweet.getUser().getScreenName());
+        userName.setText("@" + tweet.getUser().getScreenName());
         relativeTime.setText(getRelativeTimeAgo(tweet.getCreatedAt()));
         //clear out old image for a recycled view
         profilePicture.setImageResource(android.R.color.transparent);
@@ -137,16 +133,13 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                 .load(tweet.getUser().getProfileImageUrl())
                 .into(profilePicture);
 
-        if (tweet.getEntities() != null && tweet.getEntities().getMedia().size() != 0)
-        {
+        if (tweet.getEntities() != null && tweet.getEntities().getMedia().size() != 0) {
             //grab the first one:
-            //Log.d("onBindViewHolder: ", tweet.getEntities().getMedia().get(0).getMediaUrl());
             Glide.with(getContext())
                     .load(tweet.getEntities().getMedia().get(0).getMediaUrl())
                     .placeholder(R.drawable.placeholder)
                     .into(mediaPicture);
-        }
-        else {
+        } else {
             mediaPicture.setImageResource(0);
         }
     }
@@ -175,6 +168,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         return relativeDate;
     }
 
+    //wipe data.
     public void clearData() {
         int size = this.mTweets.size();
         if (size > 0) {

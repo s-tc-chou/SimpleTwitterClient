@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -12,11 +11,14 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 
 
 import com.astuetz.PagerSlidingTabStrip;
 import com.codepath.apps.SimpleTwitterClient.Adapters.SmartFragmentStatePagerAdapter;
+import com.codepath.apps.SimpleTwitterClient.Fragments.ComposeFragment;
+import com.codepath.apps.SimpleTwitterClient.Fragments.DetailFragment;
+import com.codepath.apps.SimpleTwitterClient.Fragments.HomeTimelineFragment;
+import com.codepath.apps.SimpleTwitterClient.Fragments.MentionsTimelineFragment;
 import com.codepath.apps.SimpleTwitterClient.Helpers.Network;
 import com.codepath.apps.SimpleTwitterClient.R;
 import com.facebook.stetho.Stetho;
@@ -52,8 +54,6 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         //attach the tabstrip to the viewpager.
         tabStrip.setViewPager(vpPager);
 
-
-
         //stetho debugger
         Stetho.initializeWithDefaults(this);
     }
@@ -63,21 +63,21 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
 
-        //handle action item
+        //handle action items
         switch (item.getItemId()) {
+            //compose selected
             case R.id.miCompose:
                 if (network.getOnlineStatus(this)) {
                     composeMessage();
-                }
-                else {
+                } else {
                     showOfflineAlert();
                 }
                 return true;
+            //profile selected
             case R.id.miProfile:
                 if (network.getOnlineStatus(this)) {
                     onProfileView(item);
-                }
-                else {
+                } else {
                     showOfflineAlert();
                 }
                 return true;
@@ -106,7 +106,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         //Log.d(TAG, "onComposeFinish: clearing data");
         homeTimelineFragment.clearData();
         //might want to check to see if we're online...
-        homeTimelineFragment.populateTimeline(network.getOnlineStatus(this));
+        homeTimelineFragment.callPopulateTimeline();
     }
 
     @Override
@@ -116,10 +116,8 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
 
         if (hasTweeted) {
            homeTimelineFragment.setInitialQuery(true);
-            //Log.d(TAG, "onComposeFinish: clearing data");
             homeTimelineFragment.clearData();
-            //might want to check to see if we're online...
-            homeTimelineFragment.populateTimeline(network.getOnlineStatus(this));
+            homeTimelineFragment.callPopulateTimeline();
         }
     }
 
@@ -157,18 +155,6 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         alert11.show();
     }
 
-    public void callPopulateTimeLine(boolean isOnline)
-    {
-        homeTimelineFragment = (HomeTimelineFragment) adapterViewPager.getRegisteredFragment(0);
-        homeTimelineFragment.populateTimeline(isOnline);
-    }
-
-    public void callSetInitialQuery(boolean setter)
-    {
-        homeTimelineFragment = (HomeTimelineFragment) adapterViewPager.getRegisteredFragment(0);
-        homeTimelineFragment.setInitialQuery(setter);
-    }
-
     //return order of the fragments in the view
     public class TweetsPagerAdapter extends SmartFragmentStatePagerAdapter{
         private String tabTitles[] = {"Home Timeline", "Mentions"};
@@ -181,15 +167,11 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         //control order and creation of fragments within the pager
         @Override
         public Fragment getItem(int position) {
-            if (position == 0){
+            if (position == 0) {
                 return new HomeTimelineFragment();
-                //FirstFragment.newInstance(0, "Page # 1");
-            }
-            else if (position == 1){
+            } else if (position == 1) {
                 return new MentionsTimelineFragment();
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }

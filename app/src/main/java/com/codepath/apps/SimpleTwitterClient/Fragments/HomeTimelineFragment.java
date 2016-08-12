@@ -1,10 +1,13 @@
-package com.codepath.apps.SimpleTwitterClient.Activities;
+package com.codepath.apps.SimpleTwitterClient.Fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.codepath.apps.SimpleTwitterClient.Activities.TimelineActivity;
+import com.codepath.apps.SimpleTwitterClient.Fragments.TweetsListFragment;
 import com.codepath.apps.SimpleTwitterClient.Helpers.Network;
 import com.codepath.apps.SimpleTwitterClient.TwitterApplication;
 import com.codepath.apps.SimpleTwitterClient.TwitterClient;
@@ -19,11 +22,17 @@ import cz.msebera.android.httpclient.Header;
 /**
  * Created by Steve on 8/10/2016.
  */
-public class UserTimelineFragment extends TweetsListFragment{
+public class HomeTimelineFragment extends TweetsListFragment {
+
     private TwitterClient client;
     private boolean areWeOnline = false;
     private boolean isInitialQuery = true;
     private long maxId = 1;
+
+    Network network;
+
+    //progress dialog?
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -35,25 +44,17 @@ public class UserTimelineFragment extends TweetsListFragment{
         //retrieve singleton client from twitter application
         client = TwitterApplication.getRestClient();
         populateTimeline(areWeOnline);
-    }
 
-    //initialize userTimeline Fragment and pass in the screen name.
-    public static UserTimelineFragment newInstance(String screen_name) {
-        UserTimelineFragment userFragment = new UserTimelineFragment();
-        Bundle args = new Bundle();
-        args.putString("screen_name", screen_name);
-        userFragment.setArguments(args);
-        return userFragment;
     }
 
     @Override
     protected void populateTimeline(final boolean isOnline) {
-        String screenName = getArguments().getString("screen_name");
+        showProgressDialog();
         //If we're offline, populate from SQL db.
         if (isOnline) {
             //if it's the first query, pull everything.
             if (isInitialQuery) {
-                client.getUserTimeine(screenName, new JsonHttpResponseHandler() {
+                client.getInitialHomeTimeline(new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
                         //ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
@@ -68,7 +69,7 @@ public class UserTimelineFragment extends TweetsListFragment{
                 });
                 isInitialQuery = false;
             } else {
-                client.getPaginatedUserTimeine(screenName, new JsonHttpResponseHandler() {
+                client.getPaginatedHomeTimeline(new JsonHttpResponseHandler() {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
@@ -82,14 +83,33 @@ public class UserTimelineFragment extends TweetsListFragment{
                         Log.d(TAG, errorResponse.toString());
                     }
                 }, maxId);
-                //Toast.makeText(getActivity(), "in else", Toast.LENGTH_LONG).show();
             }
         } else {
             Toast.makeText(getActivity(), "Cannot retrieve new tweets, no internet connection detected", Toast.LENGTH_LONG).show();
             //read from sql db here.
             addAll(null, isInitialQuery, isOnline);
-
         }
+        hideProgressDialog();
+    }
+
+    @Override
+    protected void fetchDataAsync() {
+        isInitialQuery = true;
+        clearData();
+        populateTimeline(areWeOnline);
+        swipeContainer.setRefreshing(false);
+    }
+
+    public void callPopulateTimeline() {
+        populateTimeline(areWeOnline);
+    }
+
+    public void setInitialQuery(boolean setter) {
+        isInitialQuery = setter;
+    }
+
+    public boolean getInitialQuery() {
+        return isInitialQuery;
     }
 
 }

@@ -98,12 +98,10 @@ public class TwitterClient extends OAuthBaseClient {
 	}
 
 	//Get us the current user profile.
-	//getUserInfo
 	public void getProfile(AsyncHttpResponseHandler handler)
 	{
 		String apiURL = getApiUrl("account/verify_credentials.json");
 
-		//execute the request
 		getClient().get(apiURL,handler);
 	}
 
@@ -118,7 +116,7 @@ public class TwitterClient extends OAuthBaseClient {
 	}
 
 
-
+	//get user timeline tweets.
 	public void getUserTimeine(String screenName, AsyncHttpResponseHandler handler)
 	{
 		String apiURL = getApiUrl("statuses/user_timeline.json");
@@ -128,6 +126,8 @@ public class TwitterClient extends OAuthBaseClient {
 
 		getClient().get(apiURL,params,handler);
 	}
+
+	//paginated user timeline tweets
 	public void getPaginatedUserTimeine(String screenName, AsyncHttpResponseHandler handler, long maxId)
 	{
 		String apiURL = getApiUrl("statuses/user_timeline.json");
@@ -147,7 +147,6 @@ public class TwitterClient extends OAuthBaseClient {
 		RequestParams params = new RequestParams();
 		params.put("status",text);
 
-		//execute the request
 		getClient().post(apiURL,params,handler);
 	}
 

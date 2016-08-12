@@ -1,5 +1,6 @@
-package com.codepath.apps.SimpleTwitterClient.Activities;
+package com.codepath.apps.SimpleTwitterClient.Fragments;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.codepath.apps.SimpleTwitterClient.Activities.TimelineActivity;
 import com.codepath.apps.SimpleTwitterClient.Adapters.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.SimpleTwitterClient.Adapters.TweetsArrayAdapter;
 import com.codepath.apps.SimpleTwitterClient.Helpers.DBHelper;
@@ -47,6 +49,8 @@ public abstract class TweetsListFragment extends Fragment {
     DBHelper tweetDB;
     private long maxId = 1;
 
+    private ProgressDialog pd;
+
     //butterknife binds
     @BindView(R.id.rvTweets) RecyclerView rvTweets;
     @BindView(R.id.swipeContainer) SwipeRefreshLayout swipeContainer;
@@ -58,6 +62,7 @@ public abstract class TweetsListFragment extends Fragment {
         //connect adapter to recycler view
         initrvTweets();
         initSwipeContainer();
+        initProgressDialog();
 
         return v;
     }
@@ -76,8 +81,6 @@ public abstract class TweetsListFragment extends Fragment {
         //network helper
         network = new Network();
         areWeOnline = network.getOnlineStatus(getActivity());
-        Log.d(TAG, "" + areWeOnline);
-
     }
 
     //Initializer helpers ---------------------------------
@@ -149,46 +152,33 @@ public abstract class TweetsListFragment extends Fragment {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //fetchTimelineAsync(0);
-                swipeContainer.setRefreshing(false);
+                fetchDataAsync();
             }
         });
         // Configure the refreshing colors
-
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
     }
 
-    //clear the adapter and refresh all the data based on pull to refresh.
-    private void fetchTimelineAsync(int page) {
-        ((TimelineActivity)getActivity()).callSetInitialQuery(true);
-        aTweets.clearData();
-        ((TimelineActivity) getActivity()).callPopulateTimeLine(areWeOnline);
-        swipeContainer.setRefreshing(false);
-    }
-
-
     //addall interface for timeline Activity
-    public void addAll(ArrayList<Tweet> newTweets, boolean isInitialQuery, boolean isOnline){
+    public void addAll(ArrayList<Tweet> newTweets, boolean isInitialQuery, boolean isOnline) {
         if (isOnline) {
             if (newTweets.size() > 0 && !duplicateCheck(newTweets, tweets)) {
                 setLastID(newTweets.get(newTweets.size() - 1));
                 tweets.addAll(newTweets);
                 aTweets.notifyDataSetChanged();
 
-                //needs to differentiate between paginate and not.
+                //needs to differentiate between paginate and not.  Delete everything if it's a refresh.
                 if (isInitialQuery) {
                     tweetDB.refresh();
                 }
                 tweetDB.addTweetArray(newTweets);
             } else {
-                Log.e(TAG, "failed dupe check@onSuccess. Not adding. ");
+                Log.i(TAG, "failed dupe check@onSuccess. Not adding. ");
             }
-        }
-        else
-        {
+        } else {
             tweets.addAll(tweetDB.getAllListItems());
             aTweets.notifyDataSetChanged();
         }
@@ -197,37 +187,58 @@ public abstract class TweetsListFragment extends Fragment {
 
     //Misc Helper functions-----------------------------------------------------
     private void setLastID(Tweet tweet) {
-        maxId = tweet.getId()-1;
+        maxId = tweet.getId() - 1;
     }
 
-    public long getLastId()
-    {
+    public long getLastId() {
         return maxId;
     }
 
-    public void clearData()
-    {
+    public void clearData() {
         aTweets.clearData();
     }
 
+    private void initProgressDialog() {
+        //progress dialog setters.
+        pd = new ProgressDialog(getContext());
+        pd.setTitle("Loading Tweets...");
+        pd.setMessage("Please wait while tweets are loaded.");
+        pd.setCancelable(false);
+        Log.d(TAG, "initProgressDialog: done ");
+    }
+
+    public void showProgressDialog(){
+        if (pd != null) {
+            pd.show();
+        }
+        else {
+            Log.d(TAG, "showProgressDialog: pd was null when trying to show progress");
+        }
+            
+    }
+
+    public void hideProgressDialog(){
+        if (pd != null) {
+            pd.dismiss();
+        }
+        else {
+            Log.d(TAG, "showProgressDialog: pd was null when trying to dismiss progress");
+        }
+    }
+
     //check for duplicate listview items.
-    private boolean duplicateCheck(List<Tweet> newTweet, List<Tweet> baseTweet)
-    {
+    private boolean duplicateCheck(List<Tweet> newTweet, List<Tweet> baseTweet) {
         boolean isDupe = false;
         //look for just 1 duplicate.  If the record is already in the document list, ignore the whole batch.
         long curID = 0;
 
-        if (newTweet.size() > 0)
-        {
+        if (newTweet.size() > 0) {
             curID = newTweet.get(0).getId();
         }
 
-        for (int i = 0; i < baseTweet.size(); i++)
-        {
+        for (int i = 0; i < baseTweet.size(); i++) {
             long looperID = baseTweet.get(i).getId();
-            //Log.d(TAG, curID + " = " + looperID);
-            if (looperID == curID)
-            {
+            if (looperID == curID) {
                 isDupe = true;
                 break;
             }
@@ -235,7 +246,11 @@ public abstract class TweetsListFragment extends Fragment {
         return isDupe;
     }
 
+
+    //abstract classes to extend---------------------------------------------------
     protected abstract void populateTimeline(boolean isOnline);
+
+    protected abstract void fetchDataAsync();
 
 
 }

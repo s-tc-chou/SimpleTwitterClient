@@ -1,10 +1,12 @@
-package com.codepath.apps.SimpleTwitterClient.Activities;
+package com.codepath.apps.SimpleTwitterClient.Fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.codepath.apps.SimpleTwitterClient.Activities.TimelineActivity;
+import com.codepath.apps.SimpleTwitterClient.Fragments.TweetsListFragment;
 import com.codepath.apps.SimpleTwitterClient.Helpers.Network;
 import com.codepath.apps.SimpleTwitterClient.TwitterApplication;
 import com.codepath.apps.SimpleTwitterClient.TwitterClient;
@@ -19,15 +21,12 @@ import cz.msebera.android.httpclient.Header;
 /**
  * Created by Steve on 8/10/2016.
  */
-public class HomeTimelineFragment extends TweetsListFragment {
+public class MentionsTimelineFragment extends TweetsListFragment {
 
     private TwitterClient client;
     private boolean areWeOnline = false;
     private boolean isInitialQuery = true;
     private long maxId = 1;
-
-    Network network;
-
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,28 +40,29 @@ public class HomeTimelineFragment extends TweetsListFragment {
         populateTimeline(areWeOnline);
     }
 
+    //popoulate the timeline.
     @Override
     protected void populateTimeline(final boolean isOnline) {
         //If we're offline, populate from SQL db.
+        showProgressDialog();
         if (isOnline) {
             //if it's the first query, pull everything.
             if (isInitialQuery) {
-                client.getInitialHomeTimeline(new JsonHttpResponseHandler() {
+                client.getMentionsTimeline(new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
-                        //ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
                         addAll(Tweet.fromJSONArray(json), isInitialQuery, isOnline);
                         maxId = getLastId();
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        Log.d(TAG, errorResponse.toString());
+                        Log.e("Mentions Failed", Log.getStackTraceString(throwable));
                     }
                 });
                 isInitialQuery = false;
             } else {
-                client.getPaginatedHomeTimeline(new JsonHttpResponseHandler() {
+                client.getPaginatedMentionsTimeline(new JsonHttpResponseHandler() {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
@@ -72,29 +72,24 @@ public class HomeTimelineFragment extends TweetsListFragment {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        //super.onFailure(statusCode, headers, throwable, errorResponse);
-                        Log.d(TAG, errorResponse.toString());
+                        Log.e("PaginateMentions Failed", Log.getStackTraceString(throwable));
                     }
                 }, maxId);
             }
-        }
-        else
-        {
+        } else {
             Toast.makeText(getActivity(), "Cannot retrieve new tweets, no internet connection detected", Toast.LENGTH_LONG).show();
             //read from sql db here.
             addAll(null, isInitialQuery, isOnline);
-
         }
+        hideProgressDialog();
     }
 
-    public void setInitialQuery(boolean setter)
-    {
-        isInitialQuery = setter;
+    //used for refresh.
+    @Override
+    protected void fetchDataAsync() {
+        isInitialQuery = true;
+        clearData();
+        populateTimeline(areWeOnline);
+        swipeContainer.setRefreshing(false);
     }
-
-    public boolean getInitialQuery()
-    {
-        return isInitialQuery;
-    }
-
 }
