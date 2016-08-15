@@ -47,13 +47,13 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
-
+http://imgur.com/a/A6ozL
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
-At the time of submission, there was something wrong with the Twitter API causing paginating/network requests to not get sent through.  The paginating piece worked from the previous assignment and has no issues with paginating previously and the code is unchanged.  
+At the time of submission, there was something wrong with the Twitter API causing paginating/network requests to not get sent through.  The paginating piece worked less than 2 hours ago with paginating code unchanged.  
 
 ## Open-source libraries used
 
