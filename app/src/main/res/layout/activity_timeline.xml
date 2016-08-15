@@ -5,25 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Activities.TimelineActivity">
-<!--    <fragment
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:name="com.codepath.apps.SimpleTwitterClient.Fragments.MentionsTimelineFragment"
-        android:id="@+id/fragment_timeline"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        tools:layout="@layout/fragment_tweets_list"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />-->
-
     <com.astuetz.PagerSlidingTabStrip
         android:id="@+id/tabs"
         app:pstsShouldExpand="true"
         app:pstsTextAllCaps="true"
         android:layout_width="match_parent"
-        android:layout_height="48dp" />
+        android:layout_height="48dp"
+        app:pstsIndicatorColor="#4099FF"
+        app:pstsIndicatorHeight="3dp"
+        style="@style/viewPagerTitleStrip"
+        android:background="@android:color/white"/>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/viewpager"
@@ -31,4 +22,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white" />
+
 </RelativeLayout>

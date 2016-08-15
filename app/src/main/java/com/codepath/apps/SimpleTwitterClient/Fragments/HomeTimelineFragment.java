@@ -17,6 +17,8 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+
 import cz.msebera.android.httpclient.Header;
 
 /**
@@ -43,13 +45,14 @@ public class HomeTimelineFragment extends TweetsListFragment {
 
         //retrieve singleton client from twitter application
         client = TwitterApplication.getRestClient();
+        isInitialQuery = true;
         populateTimeline(areWeOnline);
 
     }
 
     @Override
     protected void populateTimeline(final boolean isOnline) {
-        showProgressDialog();
+        //showProgressDialog();
         //If we're offline, populate from SQL db.
         if (isOnline) {
             //if it's the first query, pull everything.
@@ -57,14 +60,14 @@ public class HomeTimelineFragment extends TweetsListFragment {
                 client.getInitialHomeTimeline(new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
-                        //ArrayList<Tweet> JSONTweets = Tweet.fromJSONArray(json);
+                        Log.d(TAG, "onSuccess: initial" + isInitialQuery + "maxid = " + maxId);
                         addAll(Tweet.fromJSONArray(json), isInitialQuery, isOnline);
                         maxId = getLastId();
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                        Log.d(TAG, errorResponse.toString());
+                        Log.d(TAG, "onFailure: initial" + isInitialQuery + " " + errorResponse.toString());
                     }
                 });
                 isInitialQuery = false;
@@ -73,6 +76,7 @@ public class HomeTimelineFragment extends TweetsListFragment {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONArray json) {
+                        Log.d(TAG, "onSuccess: paginate" + isInitialQuery + "maxid = " + maxId);
                         addAll(Tweet.fromJSONArray(json), isInitialQuery, isOnline);
                         maxId = getLastId();
                     }
@@ -89,7 +93,7 @@ public class HomeTimelineFragment extends TweetsListFragment {
             //read from sql db here.
             addAll(null, isInitialQuery, isOnline);
         }
-        hideProgressDialog();
+        //hideProgressDialog();
     }
 
     @Override

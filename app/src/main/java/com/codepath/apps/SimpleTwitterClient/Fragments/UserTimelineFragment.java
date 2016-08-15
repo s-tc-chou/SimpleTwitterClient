@@ -50,6 +50,7 @@ public class UserTimelineFragment extends TweetsListFragment {
     @Override
     protected void populateTimeline(final boolean isOnline) {
         String screenName = getArguments().getString("screen_name");
+        //showProgressDialog();
         //If we're offline, populate from SQL db.
         if (isOnline) {
             //if it's the first query, pull everything.
@@ -88,6 +89,7 @@ public class UserTimelineFragment extends TweetsListFragment {
             addAll(null, isInitialQuery, isOnline);
 
         }
+        //hideProgressDialog();
     }
 
     @Override

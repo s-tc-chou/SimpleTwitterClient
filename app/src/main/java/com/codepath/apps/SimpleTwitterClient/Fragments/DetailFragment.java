@@ -2,8 +2,6 @@ package com.codepath.apps.SimpleTwitterClient.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +51,7 @@ public class DetailFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view =inflater.inflate(R.layout.fragment_detail, container, false);
+        View view =inflater.inflate(R.layout.activity_detail, container, false);
         client = TwitterApplication.getRestClient();
 
         ButterKnife.bind(this, view);
@@ -120,7 +118,6 @@ public class DetailFragment extends DialogFragment {
                     //Log.d(TAG, "onSuccess success");
                     onDetailFinishedListener listener = (onDetailFinishedListener) getActivity();
                     listener.onDetailFinished(true);
-                    dismiss();
                 }
 
                 @Override

@@ -44,7 +44,7 @@ public class MentionsTimelineFragment extends TweetsListFragment {
     @Override
     protected void populateTimeline(final boolean isOnline) {
         //If we're offline, populate from SQL db.
-        showProgressDialog();
+        //showProgressDialog();
         if (isOnline) {
             //if it's the first query, pull everything.
             if (isInitialQuery) {
@@ -81,7 +81,7 @@ public class MentionsTimelineFragment extends TweetsListFragment {
             //read from sql db here.
             addAll(null, isInitialQuery, isOnline);
         }
-        hideProgressDialog();
+        //hideProgressDialog();
     }
 
     //used for refresh.

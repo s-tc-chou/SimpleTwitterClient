@@ -11,26 +11,26 @@ import java.util.List;
 
 public class Tweet {
 
-    private Object coordinates;
+//    private Object coordinates;
     private Boolean truncated;
     private String createdAt;
     private Boolean favorited;
     private String idStr;
-    private Object inReplyToUserIdStr;
+//    private Object inReplyToUserIdStr;
     private Entities entities;
     private String text;
-    private Object contributors;
+//    private Object contributors;
     private Long id;
     private Integer retweetCount;
-    private Object inReplyToStatusIdStr;
-    private Object geo;
+//    private Object inReplyToStatusIdStr;
+//    private Object geo;
     private Boolean retweeted;
-    private Object inReplyToUserId;
-    private Object place;
+//    private Object inReplyToUserId;
+//    private Object place;
     private String source;
     private User user;
-    private Object inReplyToScreenName;
-    private Object inReplyToStatusId;
+//    private Object inReplyToScreenName;
+//    private Object inReplyToStatusId;
     private Boolean possiblySensitive;
 
 //    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -47,7 +47,6 @@ public class Tweet {
             tweet.createdAt = jsonObject.getString("created_at");
             tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
             tweet.entities = Entities.fromJSON(jsonObject.getJSONObject("entities"));
-            //tweet.media = Media.fromJSONArray(jsonObject.getJSONArray("media"));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -79,23 +78,6 @@ public class Tweet {
         return tweets;
     }
 
-    /**
-     *
-     * @return
-     *     The coordinates
-     */
-    public Object getCoordinates() {
-        return coordinates;
-    }
-
-    /**
-     *
-     * @param coordinates
-     *     The coordinates
-     */
-    public void setCoordinates(Object coordinates) {
-        this.coordinates = coordinates;
-    }
 
     /**
      *
@@ -169,23 +151,7 @@ public class Tweet {
         this.idStr = idStr;
     }
 
-    /**
-     *
-     * @return
-     *     The inReplyToUserIdStr
-     */
-    public Object getInReplyToUserIdStr() {
-        return inReplyToUserIdStr;
-    }
 
-    /**
-     *
-     * @param inReplyToUserIdStr
-     *     The in_reply_to_user_id_str
-     */
-    public void setInReplyToUserIdStr(Object inReplyToUserIdStr) {
-        this.inReplyToUserIdStr = inReplyToUserIdStr;
-    }
 
     /**
      *
@@ -223,23 +189,7 @@ public class Tweet {
         this.text = text;
     }
 
-    /**
-     *
-     * @return
-     *     The contributors
-     */
-    public Object getContributors() {
-        return contributors;
-    }
 
-    /**
-     *
-     * @param contributors
-     *     The contributors
-     */
-    public void setContributors(Object contributors) {
-        this.contributors = contributors;
-    }
 
     /**
      *
@@ -277,41 +227,8 @@ public class Tweet {
         this.retweetCount = retweetCount;
     }
 
-    /**
-     *
-     * @return
-     *     The inReplyToStatusIdStr
-     */
-    public Object getInReplyToStatusIdStr() {
-        return inReplyToStatusIdStr;
-    }
 
-    /**
-     *
-     * @param inReplyToStatusIdStr
-     *     The in_reply_to_status_id_str
-     */
-    public void setInReplyToStatusIdStr(Object inReplyToStatusIdStr) {
-        this.inReplyToStatusIdStr = inReplyToStatusIdStr;
-    }
 
-    /**
-     *
-     * @return
-     *     The geo
-     */
-    public Object getGeo() {
-        return geo;
-    }
-
-    /**
-     *
-     * @param geo
-     *     The geo
-     */
-    public void setGeo(Object geo) {
-        this.geo = geo;
-    }
 
     /**
      *
@@ -331,41 +248,6 @@ public class Tweet {
         this.retweeted = retweeted;
     }
 
-    /**
-     *
-     * @return
-     *     The inReplyToUserId
-     */
-    public Object getInReplyToUserId() {
-        return inReplyToUserId;
-    }
-
-    /**
-     *
-     * @param inReplyToUserId
-     *     The in_reply_to_user_id
-     */
-    public void setInReplyToUserId(Object inReplyToUserId) {
-        this.inReplyToUserId = inReplyToUserId;
-    }
-
-    /**
-     *
-     * @return
-     *     The place
-     */
-    public Object getPlace() {
-        return place;
-    }
-
-    /**
-     *
-     * @param place
-     *     The place
-     */
-    public void setPlace(Object place) {
-        this.place = place;
-    }
 
     /**
      *
@@ -403,41 +285,7 @@ public class Tweet {
         this.user = user;
     }
 
-    /**
-     *
-     * @return
-     *     The inReplyToScreenName
-     */
-    public Object getInReplyToScreenName() {
-        return inReplyToScreenName;
-    }
 
-    /**
-     *
-     * @param inReplyToScreenName
-     *     The in_reply_to_screen_name
-     */
-    public void setInReplyToScreenName(Object inReplyToScreenName) {
-        this.inReplyToScreenName = inReplyToScreenName;
-    }
-
-    /**
-     *
-     * @return
-     *     The inReplyToStatusId
-     */
-    public Object getInReplyToStatusId() {
-        return inReplyToStatusId;
-    }
-
-    /**
-     *
-     * @param inReplyToStatusId
-     *     The in_reply_to_status_id
-     */
-    public void setInReplyToStatusId(Object inReplyToStatusId) {
-        this.inReplyToStatusId = inReplyToStatusId;
-    }
 
     /**
      *
@@ -456,13 +304,5 @@ public class Tweet {
     public void setPossiblySensitive(Boolean possiblySensitive) {
         this.possiblySensitive = possiblySensitive;
     }
-
-    /*public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }*/
 
 }

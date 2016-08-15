@@ -2,6 +2,7 @@ package com.codepath.apps.SimpleTwitterClient.Fragments;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,6 +18,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.codepath.apps.SimpleTwitterClient.Activities.DetailActivity;
+import com.codepath.apps.SimpleTwitterClient.Activities.ProfileActivity;
 import com.codepath.apps.SimpleTwitterClient.Activities.TimelineActivity;
 import com.codepath.apps.SimpleTwitterClient.Adapters.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.SimpleTwitterClient.Adapters.TweetsArrayAdapter;
@@ -25,6 +29,8 @@ import com.codepath.apps.SimpleTwitterClient.Helpers.ItemClickSupport;
 import com.codepath.apps.SimpleTwitterClient.Helpers.Network;
 import com.codepath.apps.SimpleTwitterClient.R;
 import com.codepath.apps.SimpleTwitterClient.models.Tweets.Tweet;
+
+import org.parceler.Parcels;
 
 import java.sql.Time;
 import java.util.ArrayList;
@@ -90,6 +96,7 @@ public abstract class TweetsListFragment extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         rvTweets.setLayoutManager(linearLayoutManager);
         rvTweets.addOnScrollListener(new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+
             @Override
             public void onLoadMore(int page, int totalItemsCount) {
                 customLoadMoreDataFromApi(page);
@@ -97,14 +104,39 @@ public abstract class TweetsListFragment extends Fragment {
         });
 
         //click listener to load details.
-        /*ItemClickSupport.addTo(rvTweets).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+        ItemClickSupport.addTo(rvTweets).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                //debug only
-                Toast.makeText(getActivity(),"clicked " + position, Toast.LENGTH_SHORT).show();
-                showItemDetail(position);
+                //Toast.makeText(getActivity(),"clicked " + position, Toast.LENGTH_SHORT).show();
+
+                Tweet tweet = tweets.get(position);
+                //maybe use parcelable to pss in stuff to details.
+                Intent i = new Intent(getActivity(), DetailActivity.class);
+
+                //Note: Wanted to use parceler, but don't have to figure out how to deserialize objects inside the parcelable.
+
+
+                if (tweet.getEntities() != null && tweet.getEntities().getMedia().size() != 0) {
+                    //grab the first one:
+                    Glide.with(getContext())
+                            .load(tweet.getEntities().getMedia().get(0).getMediaUrl());
+                }
+
+
+                i.putExtra("screen_name", tweet.getUser().getScreenName());
+                i.putExtra("tweet_body", tweet.getText());
+                i.putExtra("name", tweet.getUser().getName());
+                i.putExtra("profile_picture", tweet.getUser().getProfileImageUrl());
+                i.putExtra("post_id", tweet.getId());
+
+                    //get a media picture if there is one
+                if (tweet.getEntities() != null && tweet.getEntities().getMedia().size() != 0) {
+                    i.putExtra("media_picture", tweet.getEntities().getMedia().get(0).getMediaUrl());
+                }
+
+                startActivity(i);
             }
-        });*/
+        });
     }
 
     // Listener helper functions ----------------
@@ -113,41 +145,6 @@ public abstract class TweetsListFragment extends Fragment {
         //paginate only if online.
         populateTimeline(areWeOnline);
     }
-
-    //TO DO: fix
-   /* private void showItemDetail(int position){
-
-        FragmentManager fm = getFragmentManager();
-        DetailFragment tweetDetailFragment = new DetailFragment();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-
-        //DetailFragment detailFragment = new DetailFragment();
-
-        //setup bundle
-        Tweet curTweet = tweets.get(position);
-        Bundle mybundle = new Bundle();
-        mybundle.putString("userName", curTweet.getUser().getScreenName());
-        mybundle.putString("tweetBody", curTweet.getText());
-        mybundle.putString("name", curTweet.getUser().getName());
-        //mybundle.putString("relativeTime", curTweet.getUser().getName());
-        mybundle.putString("profilePicture", curTweet.getUser().getProfileImageUrl());
-
-        if (curTweet.getEntities().getMedia().size() != 0) {
-            //grab the first one:
-            mybundle.putString("mediaPicture", curTweet.getEntities().getMedia().get(0).getMediaUrl());
-        }
-
-        tweetDetailFragment.setArguments(mybundle);
-
-        fragmentTransaction.replace(R.id.fragment_timeline, tweetDetailFragment);
-        fragmentTransaction.commit();
-
-        //tweetDetailFragment.show(fm, "fragment_detail");
-    }*/
-
-
-
-
     public void initSwipeContainer(){
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -188,6 +185,7 @@ public abstract class TweetsListFragment extends Fragment {
     //Misc Helper functions-----------------------------------------------------
     private void setLastID(Tweet tweet) {
         maxId = tweet.getId() - 1;
+        //Log.d(TAG, "maxID" + (tweet.getId() -1));
     }
 
     public long getLastId() {
@@ -214,7 +212,6 @@ public abstract class TweetsListFragment extends Fragment {
         else {
             Log.d(TAG, "showProgressDialog: pd was null when trying to show progress");
         }
-            
     }
 
     public void hideProgressDialog(){

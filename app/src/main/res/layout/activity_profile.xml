@@ -34,6 +34,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@+id/ivProfileImage"
+            android:textStyle="bold"
             android:text="Name"
             android:layout_alignParentTop="true"/>
 
@@ -41,30 +42,60 @@
             android:id="@+id/tvTagline"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:layout_alignLeft="@+id/tvName"
             android:layout_below="@+id/tvName"
             android:text="TagLine" />
     </RelativeLayout>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_below="@+id/rlUserHeader"
+        android:id="@+id/vwDivider"
+        android:background="@android:color/darker_gray"/>
     <LinearLayout
         android:id="@+id/llCounts"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
-        android:layout_below="@+id/rlUserHeader"
+        android:layout_below="@+id/vwDivider"
+        android:layout_alignLeft="@+id/rlUserHeader"
         android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tvFollowers"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="5 followers"/>
+            android:textStyle="bold"
+            android:text="5"/>
+
+        <TextView
+            android:id="@+id/tvFollowersSuffix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#C0C0C0"
+            android:layout_marginLeft="3dp"
+            android:text="FOLLOWERS"
+            />
 
         <TextView
             android:id="@+id/tvFollowing"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="5 following"/>
+            android:textStyle="bold"
+            android:text="5"/>
+
+
+        <TextView
+            android:id="@+id/tvFollowingSuffix"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#C0C0C0"
+            android:layout_marginLeft="3dp"
+            android:text="FOLLOWING"/>
 
     </LinearLayout>
 

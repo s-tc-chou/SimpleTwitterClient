@@ -1,5 +1,6 @@
 package com.codepath.apps.SimpleTwitterClient.Activities;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,12 +35,15 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
     private SmartFragmentStatePagerAdapter adapterViewPager;
     private HomeTimelineFragment homeTimelineFragment;
 
+    private ProgressDialog pd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timeline);
         setTitle(R.string.title_activity_timeline);
+
+//        pd.show();
 
         network = new Network();
 
@@ -57,6 +62,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         //stetho debugger
         Stetho.initializeWithDefaults(this);
     }
+
 
 
     //menu items overrides --------------------------------------------------------------
@@ -135,6 +141,14 @@ public class TimelineActivity extends AppCompatActivity implements ComposeFragme
         composeFragment.show(fm, "fragment_compose");
     }
 
+    private void initProgressDialog() {
+        //progress dialog setters.
+        pd = new ProgressDialog(this);
+        pd.setTitle("Loading Tweets...");
+        pd.setMessage("Please wait while tweets are loaded.");
+        pd.setCancelable(false);
+        //Log.d(TAG, "initProgressDialog: done ");
+    }
 
     //display message box if offline.
     private void showOfflineAlert()

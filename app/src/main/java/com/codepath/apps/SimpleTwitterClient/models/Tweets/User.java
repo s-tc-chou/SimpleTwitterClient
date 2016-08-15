@@ -48,7 +48,7 @@ public class User {
     private Boolean following;
     private Boolean showAllInlineMedia;
     private String screenName;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+//    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 
     //deserialize the user json into user object
@@ -803,12 +803,12 @@ public class User {
         this.screenName = screenName;
     }
 
-    public Map<String, Object> getAdditionalProperties() {
+    /*public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
-
+*/
 }
